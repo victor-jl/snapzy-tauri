@@ -1,0 +1,227 @@
+.timelineContainer {
+  position: relative;
+  flex-shrink: 0;
+  height: 90px;
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  overflow: hidden;
+  user-select: none;
+}
+
+.timelineScroll {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  scrollbar-width: none;
+}
+
+.timelineScroll::-webkit-scrollbar {
+  height: 0;
+}
+
+.timelineScroll:active {
+  cursor: grabbing;
+}
+
+.timelineInner {
+  position: relative;
+  height: 100%;
+}
+
+/* --- Ruler --- */
+.ruler {
+  position: relative;
+  height: 24px;
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.rulerTick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.rulerTickMajor {
+  composes: rulerTick;
+  background-color: var(--color-text-secondary);
+  height: 10px;
+}
+
+.rulerTickMinor {
+  composes: rulerTick;
+  height: 5px;
+}
+
+.rulerLabel {
+  position: absolute;
+  top: 2px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* --- Thumbnails Track --- */
+.thumbnailTrack {
+  position: relative;
+  height: 50px;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.thumbnail {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* --- Selected Region --- */
+.selectedRegion {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  background-color: rgba(0, 113, 227, 0.15);
+  border-left: 2px solid var(--color-accent);
+  border-right: 2px solid var(--color-accent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* --- Trim Handles --- */
+.trimHandle {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  width: 8px;
+  background-color: var(--color-accent);
+  cursor: col-resize;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trimHandleLeft {
+  composes: trimHandle;
+  border-radius: 0;
+  left: 0;
+}
+
+.trimHandleRight {
+  composes: trimHandle;
+  border-radius: 0;
+  right: 0;
+}
+
+.trimHandle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+
+.trimHandleLeft::after {
+  transform: translateY(-50%) rotate(-90deg);
+  border-top: 6px solid #fff;
+}
+
+.trimHandleRight::after {
+  transform: translateY(-50%) rotate(90deg);
+  border-top: 6px solid #fff;
+}
+
+/* --- Playhead --- */
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ff3b30;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.playheadTriangle {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid #ff3b30;
+  z-index: 11;
+  pointer-events: none;
+}
+
+/* --- Zoom Controls --- */
+.zoomControls {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 15;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+}
+
+.zoomBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 3px;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  transition: background-color var(--transition-fast);
+}
+
+.zoomBtn:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.zoomLabel {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  min-width: 30px;
+  text-align: center;
+}
+
+/* --- Click overlay for seeking --- */
+.clickOverlay {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  cursor: pointer;
+}

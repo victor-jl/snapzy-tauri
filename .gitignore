@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+src-tauri/target/
+
+# External binaries (downloaded, not committed)
+src-tauri/binaries/ffmpeg-*
+src-tauri/binaries/tesseract-*
+src-tauri/binaries/tessdata/
+
+# Keep the .gitkeep and README in binaries/
+!src-tauri/binaries/.gitkeep
+!src-tauri/binaries/README.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicehash/tauri/main/core/tauri-config-schema/schema.json",
+  "productName": "Snapzy",
+  "version": "0.1.0",
+  "identifier": "com.snapzy.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Snapzy - Capture",
+        "label": "capture",
+        "width": 800,
+        "height": 600,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": false
+      },
+      {
+        "title": "Snapzy - Quick Access",
+        "label": "quick-access",
+        "width": 320,
+        "height": 480,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "visible": false,
+        "skipTaskbar": true
+      },
+      {
+        "title": "Snapzy",
+        "label": "main",
+        "width": 900,
+        "height": 640,
+        "minWidth": 600,
+        "minHeight": 400,
+        "decorations": false,
+        "transparent": true,
+        "center": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/ffmpeg",
+      "binaries/tesseract"
+    ],
+    "resources": {
+      "binaries/tessdata/**": "tessdata/"
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    },
+    "windows": {
+      "wix": null,
+      "nsis": null
+    }
+  },
+  "plugins": {
+    "global-shortcut": {},
+    "clipboard-manager": {},
+    "notification": {},
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://releases.snapzy.app/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": ""
+    },
+    "dialog": {},
+    "fs": {
+      "scope": {
+        "allow": ["$APPDATA/**", "$DESKTOP/**", "$DOCUMENT/**", "$DOWNLOAD/**", "$HOME/**", "$PICTURE/**", "$VIDEO/**"],
+        "deny": []
+      }
+    },
+    "shell": {
+      "scope": [
+        {
+          "name": "open-url",
+          "cmd": "open",
+          "args": true
+        },
+        {
+          "name": "ffmpeg",
+          "cmd": "binaries/ffmpeg",
+          "args": true,
+          "sidecar": true
+        },
+        {
+          "name": "tesseract",
+          "cmd": "binaries/tesseract",
+          "args": true,
+          "sidecar": true
+        }
+      ]
+    }
+  }
+}

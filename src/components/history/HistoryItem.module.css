@@ -1,0 +1,176 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  position: relative;
+}
+
+.item:nth-child(even) {
+  background-color: var(--color-bg-secondary);
+}
+
+.item:nth-child(odd) {
+  background-color: var(--color-bg-primary);
+}
+
+.item:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.itemSelected {
+  composes: item;
+  background-color: rgba(10, 132, 255, 0.08);
+  border-left: 3px solid var(--color-accent);
+}
+
+/* --- Checkbox --- */
+.checkbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* --- Thumbnail --- */
+.thumbnail {
+  position: relative;
+  flex-shrink: 0;
+  width: 128px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: #000;
+}
+
+.thumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailGrid {
+  composes: thumbnail;
+  width: 200px;
+  height: 150px;
+}
+
+.typeBadge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+  pointer-events: none;
+}
+
+.typeBadgeScreenshot {
+  composes: typeBadge;
+  background-color: var(--color-accent);
+}
+
+.typeBadgeRecording {
+  composes: typeBadge;
+  background-color: var(--color-danger);
+}
+
+.typeBadgeGif {
+  composes: typeBadge;
+  background-color: var(--color-success);
+}
+
+.typeBadgeAnnotated {
+  composes: typeBadge;
+  background-color: var(--color-warning);
+}
+
+.recordingIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+
+/* --- Info --- */
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.fileSize {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Hover Actions --- */
+.hoverActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.item:hover .hoverActions {
+  opacity: 1;
+}
+
+.hoverBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hoverBtn:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+.hoverBtnDelete:hover {
+  background-color: var(--color-danger);
+  color: #fff;
+}

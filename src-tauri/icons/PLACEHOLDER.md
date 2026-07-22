@@ -1,0 +1,20 @@
+Placeholder - app icons go here.
+
+Required icons:
+- 32x32.png
+- 128x128.png
+- 128x128@2x.png
+- icon.icns (macOS)
+- icon.ico (Windows)
+- Square30x30Logo.png (Windows)
+- Square44x44Logo.png (Windows)
+- Square71x71Logo.png (Windows)
+- Square89x89Logo.png (Windows)
+- Square107x107Logo.png (Windows)
+- Square142x142Logo.png (Windows)
+- Square150x150Logo.png (Windows)
+- Square284x284Logo.png (Windows)
+- Square310x310Logo.png (Windows)
+- StoreLogo.png (Windows)
+
+Generate these with: npm run tauri icon path/to/icon.png
