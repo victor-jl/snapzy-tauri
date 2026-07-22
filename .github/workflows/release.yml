@@ -39,6 +39,7 @@ jobs:
 
       - name: Install sidecar binaries (macOS ARM64)
         run: |
+          export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
           brew install ffmpeg tesseract
 
           cp "$(brew --prefix ffmpeg)/bin/ffmpeg" src-tauri/binaries/ffmpeg-aarch64-apple-darwin
@@ -87,6 +88,7 @@ jobs:
 
       - name: Install sidecar binaries (macOS x64)
         run: |
+          export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
           brew install ffmpeg tesseract
 
           cp "$(brew --prefix ffmpeg)/bin/ffmpeg" src-tauri/binaries/ffmpeg-x86_64-apple-darwin
@@ -141,6 +143,9 @@ jobs:
           # Install FFmpeg and Tesseract via chocolatey
           choco install ffmpeg tesseract --yes --no-progress
 
+          # Refresh environment to pick up new PATH entries
+          refreshenv
+
           # Copy ffmpeg.exe
           $ffmpegPath = (Get-Command ffmpeg -ErrorAction Stop).Source
           Copy-Item $ffmpegPath "src-tauri\binaries\ffmpeg-x86_64-pc-windows-msvc.exe"
@@ -149,11 +154,13 @@ jobs:
           $tesseractPath = (Get-Command tesseract -ErrorAction Stop).Source
           Copy-Item $tesseractPath "src-tauri\binaries\tesseract-x86_64-pc-windows-msvc.exe"
 
-          # Copy tessdata
+          # Copy tessdata (chocolatey installs to C:\Program Files\Tesseract-OCR\)
           mkdir -Force src-tauri\binaries\tessdata
-          $tessdataDir = Split-Path $tesseractPath -Parent | Split-Path -Parent | Join-Path -ChildPath "tessdata"
-          if (Test-Path "$tessdataDir\eng.traineddata") {
-            Copy-Item "$tessdataDir\eng.traineddata" "src-tauri\binaries\tessdata\"
+          $tessDir = Split-Path $tesseractPath -Parent
+          if (Test-Path "$tessDir\tessdata\eng.traineddata") {
+            Copy-Item "$tessDir\tessdata\eng.traineddata" "src-tauri\binaries\tessdata\"
+          } elseif (Test-Path "C:\Program Files\Tesseract-OCR\tessdata\eng.traineddata") {
+            Copy-Item "C:\Program Files\Tesseract-OCR\tessdata\eng.traineddata" "src-tauri\binaries\tessdata\"
           }
 
       - name: Build Tauri (Windows x64)
