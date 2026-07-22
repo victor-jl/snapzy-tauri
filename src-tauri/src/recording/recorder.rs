@@ -230,7 +230,7 @@ fn build_macos_command(cmd: &mut Command, options: &RecordingOptions) {
 
     // Handle audio: system audio requires BlackHole/Soundflower on macOS.
     if options.include_audio && !options.include_mic {
-        cmd.args(["-i", &format!("{display_index}:BlackHole 2ch")]);
+        cmd.args(["-f", "avfoundation", "-i", &format!("{display_index}:BlackHole 2ch")]);
     }
 }
 
