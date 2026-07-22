@@ -14,7 +14,6 @@
     "core:window:allow-set-focus",
     "core:window:allow-set-always-on-top",
     "core:window:allow-set-decorations",
-    "core:window:allow-set-transparent",
     "core:window:allow-center",
     "core:window:allow-minimize",
     "core:window:allow-unminimize",
