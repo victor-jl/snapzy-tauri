@@ -34,17 +34,17 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
   const capture = config.capture;
 
   const [defaultAction, setDefaultAction] = useState(
-    () => (capture as Record<string, unknown>).default_capture_action as string || capture.default_action
+    () => (capture as unknown as Record<string, unknown>).default_capture_action as string || capture.default_action
   );
   const [fileFormat, setFileFormat] = useState(capture.file_format);
   const [jpgQuality, setJpgQuality] = useState(
-    () => (capture as Record<string, unknown>).jpg_quality as number || 80
+    () => (capture as unknown as Record<string, unknown>).jpg_quality as number || 80
   );
   const [delay, setDelay] = useState(
-    () => (capture as Record<string, unknown>).capture_delay as number || 0
+    () => (capture as unknown as Record<string, unknown>).capture_delay as number || 0
   );
   const [thumbnailTimeout, setThumbnailTimeout] = useState(
-    () => (capture as Record<string, unknown>).thumbnail_timeout as string || "10s"
+    () => (capture as unknown as Record<string, unknown>).thumbnail_timeout as string || "10s"
   );
 
   const handleToggle = useCallback(
@@ -58,7 +58,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
   const handleCaptureActionChange = useCallback(
     (action: string) => {
       setDefaultAction(action);
-      updateSection("capture", { default_capture_action: action } as Record<string, unknown>);
+      updateSection("capture", { default_capture_action: action } as unknown as Record<string, unknown>);
       onChange();
     },
     [updateSection, onChange]
@@ -76,7 +76,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
   const handleJpgQualityChange = useCallback(
     (quality: number) => {
       setJpgQuality(quality);
-      updateSection("capture", { jpg_quality: quality } as Record<string, unknown>);
+      updateSection("capture", { jpg_quality: quality } as unknown as Record<string, unknown>);
       onChange();
     },
     [updateSection, onChange]
@@ -85,7 +85,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
   const handleDelayChange = useCallback(
     (d: number) => {
       setDelay(d);
-      updateSection("capture", { capture_delay: d } as Record<string, unknown>);
+      updateSection("capture", { capture_delay: d } as unknown as Record<string, unknown>);
       onChange();
     },
     [updateSection, onChange]
@@ -94,7 +94,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
   const handleThumbnailTimeoutChange = useCallback(
     (timeout: string) => {
       setThumbnailTimeout(timeout);
-      updateSection("capture", { thumbnail_timeout: timeout } as Record<string, unknown>);
+      updateSection("capture", { thumbnail_timeout: timeout } as unknown as Record<string, unknown>);
       onChange();
     },
     [updateSection, onChange]
@@ -184,7 +184,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
           <input
             type="checkbox"
             className={styles.toggleSwitch}
-            checked={(capture as Record<string, unknown>).copy_to_clipboard as boolean ?? true}
+            checked={(capture as unknown as Record<string, unknown>).copy_to_clipboard as boolean ?? true}
             onChange={(e) => handleToggle("copy_to_clipboard", e.target.checked)}
           />
         </label>
@@ -197,7 +197,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
           <input
             type="checkbox"
             className={styles.toggleSwitch}
-            checked={(capture as Record<string, unknown>).auto_open as boolean ?? false}
+            checked={(capture as unknown as Record<string, unknown>).auto_open as boolean ?? false}
             onChange={(e) => handleToggle("auto_open", e.target.checked)}
           />
         </label>
@@ -210,7 +210,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
           <input
             type="checkbox"
             className={styles.toggleSwitch}
-            checked={(capture as Record<string, unknown>).show_preview as boolean ?? true}
+            checked={(capture as unknown as Record<string, unknown>).show_preview as boolean ?? true}
             onChange={(e) => handleToggle("show_preview", e.target.checked)}
           />
         </label>
@@ -313,7 +313,7 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
         <div className={styles.sliderField}>
           <label className={styles.sliderLabel}>
             {t("preferences:overlapPercentage", "Overlap Percentage")}:{" "}
-            {(capture as Record<string, unknown>).scroll_overlap as number ?? 30}%
+            {(capture as unknown as Record<string, unknown>).scroll_overlap as number ?? 30}%
           </label>
           <div className={styles.sliderRow}>
             <input
@@ -322,13 +322,13 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
               min={0}
               max={50}
               step={5}
-              value={(capture as Record<string, unknown>).scroll_overlap as number ?? 30}
+              value={(capture as unknown as Record<string, unknown>).scroll_overlap as number ?? 30}
               onChange={(e) => {
-                updateSection("capture", { scroll_overlap: Number(e.target.value) } as Record<string, unknown>);
+                updateSection("capture", { scroll_overlap: Number(e.target.value) } as unknown as Record<string, unknown>);
                 onChange();
               }}
             />
-            <span className={styles.sliderValue}>{(capture as Record<string, unknown>).scroll_overlap as number ?? 30}%</span>
+            <span className={styles.sliderValue}>{(capture as unknown as Record<string, unknown>).scroll_overlap as number ?? 30}%</span>
           </div>
         </div>
 
@@ -342,9 +342,9 @@ const CaptureSettings: React.FC<CaptureSettingsProps> = ({ onChange }) => {
             min={500}
             max={50000}
             step={500}
-            value={(capture as Record<string, unknown>).max_scroll_height as number ?? 20000}
+            value={(capture as unknown as Record<string, unknown>).max_scroll_height as number ?? 20000}
             onChange={(e) => {
-              updateSection("capture", { max_scroll_height: Number(e.target.value) } as Record<string, unknown>);
+              updateSection("capture", { max_scroll_height: Number(e.target.value) } as unknown as Record<string, unknown>);
               onChange();
             }}
           />

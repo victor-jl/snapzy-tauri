@@ -142,21 +142,26 @@ fn capture_fullscreen_raw() -> SnapzyResult<image::DynamicImage> {
         SnapzyError::CaptureError(format!("Failed to enumerate monitors: {e}"))
     })?;
 
-    let primary = monitors.into_iter().find(|m| m.is_primary()).or_else(|| {
-        xcap::Monitor::all()
-            .ok()
-            .and_then(|mut list| if list.is_empty() { None } else { Some(list.remove(0)) })
-    });
+    let monitor = if monitors.is_empty() {
+        return Err(SnapzyError::CaptureError("No monitors found".into()));
+    } else {
+        // Prefer primary monitor, fall back to the first one.
+        monitors
+            .into_iter()
+            .find(|m| m.is_primary())
+            .unwrap_or_else(|| {
+                // Safe: we already checked monitors is non-empty
+                xcap::Monitor::all()
+                    .ok()
+                    .and_then(|mut list| if list.is_empty() { None } else { Some(list.remove(0)) })
+                    .expect("Monitors disappeared during capture")
+            })
+    };
 
-    match primary {
-        Some(monitor) => {
-            let img = monitor.capture_image().map_err(|e| {
-                SnapzyError::CaptureError(format!("Failed to capture: {e}"))
-            })?;
-            Ok(image::DynamicImage::ImageRgba8(img))
-        }
-        None => Err(SnapzyError::CaptureError("No monitors found".into())),
-    }
+    let img = monitor.capture_image().map_err(|e| {
+        SnapzyError::CaptureError(format!("Failed to capture: {e}"))
+    })?;
+    Ok(image::DynamicImage::ImageRgba8(img))
 }
 
 /// Internal: enumerate windows via xcap.

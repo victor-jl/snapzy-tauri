@@ -1,6 +1,4 @@
 import React, { useEffect, useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useCaptureStore } from "../../stores/captureStore";
 import { useClipboard } from "../../hooks/useClipboard";
 import { invoke } from "@tauri-apps/api/core";
 import Canvas from "./Canvas";
@@ -18,7 +16,6 @@ const AnnotationEditor: React.FC<AnnotationEditorProps> = ({
   onClose,
   onSaved,
 }) => {
-  const { t } = useTranslation();
   const { copyImage } = useClipboard();
   const clearAll = useAnnotationStore((s) => s.clearAll);
   const undo = useAnnotationStore((s) => s.undo);

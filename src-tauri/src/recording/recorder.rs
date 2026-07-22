@@ -2,11 +2,14 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::Mutex;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 use crate::binary_resolver::{self, ExternalBinary};
 use crate::{CaptureArea, RecordingOptions, RecordingState, SnapzyError, SnapzyResult};
+
+/// Maximum time to wait for FFmpeg to gracefully shut down.
+const FFMPEG_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Start a screen recording session using FFmpeg.
 ///
@@ -88,28 +91,49 @@ pub fn stop_recording(
         ));
     }
 
-    // Send quit signal to FFmpeg.
+    // Send quit signal to FFmpeg. Drop stdin before waiting to signal EOF.
     if let Some(ref mut child) = rec_state.ffmpeg_process {
         // Send 'q' to stdin to gracefully stop FFmpeg.
-        if let Some(ref mut stdin) = child.stdin {
+        let mut stdin = child.stdin.take();
+        if let Some(ref mut stdin) = stdin {
             let _ = stdin.write_all(b"q");
             let _ = stdin.flush();
         }
+        // `stdin` is dropped here, closing the pipe — signals FFmpeg that input is done.
 
-        // Wait for the process to finish with a timeout.
-        match child.wait() {
-            Ok(status) => {
-                if !status.success() {
-                    log::warn!("FFmpeg exited with non-zero status: {status}");
+        // Wait for FFmpeg to exit, with a fallback timeout to prevent deadlock.
+        fn wait_for_ffmpeg(child: &mut std::process::Child) {
+            // Try up to 5 cycles, each ≤ 1 second real-time.
+            for _ in 0..5 {
+                match child.try_wait() {
+                    Ok(Some(status)) => {
+                        if !status.success() {
+                            log::warn!("FFmpeg exited with non-zero status: {status}");
+                        }
+                        return;
+                    }
+                    Ok(None) => {
+                        // Still running — spin briefly.
+                        std::thread::sleep(Duration::from_millis(1000));
+                    }
+                    Err(e) => {
+                        log::error!("Error waiting for FFmpeg: {e}");
+                        return;
+                    }
                 }
             }
-            Err(e) => {
-                // If graceful shutdown fails, force kill.
-                let _ = child.kill();
-                let _ = child.wait();
-                log::error!("FFmpeg process had to be force-killed: {e}");
+
+            // Timeout reached — force kill.
+            log::warn!(
+                "FFmpeg did not exit within {:.0}s, force-killing",
+                FFMPEG_SHUTDOWN_TIMEOUT.as_secs_f64()
+            );
+            if let Err(e) = child.kill() {
+                log::error!("Failed to kill FFmpeg: {e}");
             }
+            let _ = child.wait();
         }
+        wait_for_ffmpeg(child);
     }
 
     let output_path = rec_state.output_path.clone().unwrap_or_default();
@@ -188,13 +212,14 @@ fn build_ffmpeg_command(
 #[cfg(target_os = "macos")]
 fn build_macos_command(cmd: &mut Command, options: &RecordingOptions) {
     // macOS: use avfoundation for screen capture.
-    // Capture index 1 = main display; may need to be dynamic for multi-monitor.
+    // Dynamically determine which display index to capture based on the area coordinates.
+    let display_index = determine_display_index(&options.area);
     let (x, y, w, h) = area_or_default(&options.area);
 
     cmd.args([
         "-f", "avfoundation",
         "-capture_cursor", "1",
-        "-i", "1:none", // screen index 1, no audio by default
+        "-i", &format!("{display_index}:none"),
         "-video_size", &format!("{w}x{h}"),
     ]);
 
@@ -202,11 +227,28 @@ fn build_macos_command(cmd: &mut Command, options: &RecordingOptions) {
     if options.area.is_some() {
         cmd.args(["-filter:v", &format!("crop={w}:{h}:{x}:{y}")]);
     }
+}
 
-    if options.include_audio && !options.include_mic {
-        // Screen with system audio (requires BlackHole/Soundflower on macOS).
-        cmd.args(["-f", "avfoundation", "-i", "1:BlackHole 2ch"]);
+/// Determine the avfoundation display index based on the capture area.
+/// Falls back to index 1 (primary display) if no area is specified or enumeration fails.
+#[cfg(target_os = "macos")]
+fn determine_display_index(area: &Option<crate::CaptureArea>) -> u32 {
+    if let Some(ref area) = area {
+        if let Ok(monitors) = xcap::Monitor::all() {
+            for (i, m) in monitors.iter().enumerate() {
+                // Match the monitor that contains the capture origin.
+                if m.x() <= area.x
+                    && m.y() <= area.y
+                    && (m.x() + m.width() as i32) > area.x
+                    && (m.y() + m.height() as i32) > area.y
+                {
+                    // avfoundation index = xcap index + 1
+                    return (i + 1) as u32;
+                }
+            }
+        }
     }
+    1 // Default to primary display.
 }
 
 #[cfg(target_os = "windows")]

@@ -19,7 +19,6 @@ const MIN_SELECTION = 10;
 
 const AreaSelector: React.FC<AreaSelectorProps> = ({
   onSelect,
-  onCancel,
   monitorBounds,
 }) => {
   const { t } = useTranslation();

@@ -24,7 +24,6 @@ const Canvas: React.FC<CanvasProps> = ({ imageData, onImageSizeChange }) => {
   const selectedAnnotationId = useAnnotationStore((s) => s.selectedAnnotationId);
   const selectAnnotation = useAnnotationStore((s) => s.selectAnnotation);
   const addAnnotation = useAnnotationStore((s) => s.addAnnotation);
-  const updateAnnotation = useAnnotationStore((s) => s.updateAnnotation);
   const saveHistorySnapshot = useAnnotationStore((s) => s.saveHistorySnapshot);
   const createAnnotation = useAnnotationStore((s) => s.createAnnotation);
   const zoom = useAnnotationStore((s) => s.zoom);

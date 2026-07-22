@@ -18,14 +18,13 @@ function App() {
   const activeView = useUIStore((s) => s.activeView);
   const setView = useUIStore((s) => s.setView);
   const isAnnotationOpen = useUIStore((s) => s.isAnnotationOpen);
-  const isQuickAccessOpen = useUIStore((s) => s.isQuickAccessOpen);
   const isHistoryOpen = useUIStore((s) => s.isHistoryOpen);
   const isPreferencesOpen = useUIStore((s) => s.isPreferencesOpen);
   const isCapturing = useUIStore((s) => s.isCapturing);
   const theme = useSettingsStore((s) => s.theme);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
 
-  const { monitors, windows } = useCapture();
+  const { fetchMonitors, fetchWindows } = useCapture();
 
   // Initialize: load settings and check onboarding
   useEffect(() => {
@@ -44,8 +43,8 @@ function App() {
 
   // Load monitors and windows on mount
   useEffect(() => {
-    monitors();
-    windows();
+    fetchMonitors();
+    fetchWindows();
   }, []);
 
   // Apply theme class to document root
@@ -67,35 +66,35 @@ function App() {
       <SystemTray />
 
       {/* Main views - conditionally rendered based on UI state */}
-      {activeView === "capture" && <CaptureOverlay />}
+      {activeView === "capture" && <CaptureOverlay mode="fullscreen" />}
 
       {activeView === "quickAccess" && (
-        <QuickAccessPanel />
+        <QuickAccessPanel onEditCapture={() => {}} onClose={() => setView("capture")} />
       )}
 
       {isAnnotationOpen && activeView === "annotate" && (
-        <AnnotationEditor />
+        <AnnotationEditor imageData="" onClose={() => {}} />
       )}
 
       {activeView === "videoEditor" && (
-        <VideoEditor />
+        <VideoEditor videoPath="" onClose={() => {}} />
       )}
 
       {isHistoryOpen && activeView === "history" && (
-        <HistoryPanel />
+        <HistoryPanel onEditCapture={() => {}} onClose={() => {}} />
       )}
 
       {isPreferencesOpen && activeView === "preferences" && (
-        <PreferencesWindow />
+        <PreferencesWindow onClose={() => setView("capture")} />
       )}
 
       {activeView === "onboarding" && (
-        <OnboardingWizard />
+        <OnboardingWizard onComplete={() => { localStorage.setItem("snapzy_onboarding_completed", "true"); setView("capture"); }} />
       )}
 
       {/* Capture preview overlay - shown after successful capture */}
       {isCapturing && (
-        <CapturePreview />
+        <CapturePreview screenshot="" onAnnotate={() => {}} onDismiss={() => {}} onNewCapture={() => {}} />
       )}
     </div>
   );

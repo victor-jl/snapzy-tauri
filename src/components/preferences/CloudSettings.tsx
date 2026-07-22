@@ -81,10 +81,10 @@ const CloudSettings: React.FC<CloudSettingsProps> = ({ onChange }) => {
   const [driveEmail, setDriveEmail] = useState((creds.drive_email as string) || "");
 
   const [uploadFormat, setUploadFormat] = useState(
-    () => (cloud as Record<string, unknown>).upload_format as string || "original"
+    () => (cloud as unknown as Record<string, unknown>).upload_format as string || "original"
   );
   const [copyUrlAfterUpload, setCopyUrlAfterUpload] = useState(
-    () => (cloud as Record<string, unknown>).copy_url_after_upload as boolean ?? true
+    () => (cloud as unknown as Record<string, unknown>).copy_url_after_upload as boolean ?? true
   );
 
   const handleToggleEnabled = useCallback(

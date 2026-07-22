@@ -12,7 +12,6 @@ const Text: React.FC<TextProps> = ({ annotation, isSelected, onSelect }) => {
   const { id, x, y, width, height, color, opacity, fontSize, fontFamily } =
     annotation;
   const updateAnnotation = useAnnotationStore((s) => s.updateAnnotation);
-  const selectAnnotation = useAnnotationStore((s) => s.selectAnnotation);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(annotation.text ?? "");

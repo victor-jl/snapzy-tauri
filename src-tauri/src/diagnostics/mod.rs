@@ -137,12 +137,21 @@ fn get_os_version() -> String {
     format!("{} (unknown version)", std::env::consts::OS)
 }
 
-/// Get the system hostname.
+/// Get the system hostname (anonymized for privacy).
+/// Shows only the first 4 characters + "...".
 fn get_hostname() -> String {
-    hostname::get()
+    let raw = hostname::get()
         .ok()
         .and_then(|h| h.into_string().ok())
-        .unwrap_or_else(|| "unknown".into())
+        .unwrap_or_else(|| "unknown".into());
+
+    // Anonymize: show only first 4 chars to protect user privacy.
+    let char_count = raw.chars().count();
+    if char_count <= 4 {
+        raw
+    } else {
+        format!("{}...", &raw[..raw.char_indices().nth(4).map(|(i, _)| i).unwrap_or(raw.len())])
+    }
 }
 
 /// Get total system memory in GB.

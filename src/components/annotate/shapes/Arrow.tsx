@@ -27,7 +27,6 @@ const Arrow: React.FC<ArrowProps> = ({ annotation, isSelected, onSelect }) => {
 
   const markerId = `arrowhead-${id}`;
 
-  const angle = Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
   const arrowSize = Math.max(8, strokeWidth * 3);
 
   return (

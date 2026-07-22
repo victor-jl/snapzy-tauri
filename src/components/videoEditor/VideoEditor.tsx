@@ -5,7 +5,6 @@ import {
   Save, X, Download, Scissors, Loader2,
 } from "lucide-react";
 import { useUIStore } from "../../stores/uiStore";
-import { useHistoryStore } from "../../stores/historyStore";
 import Timeline from "./Timeline";
 import TrimControls from "./TrimControls";
 import styles from "./VideoEditor.module.css";
