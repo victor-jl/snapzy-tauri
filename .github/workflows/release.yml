@@ -143,8 +143,8 @@ jobs:
           # Install FFmpeg and Tesseract via chocolatey
           choco install ffmpeg tesseract --yes --no-progress
 
-          # Refresh environment to pick up new PATH entries
-          refreshenv
+          # Refresh PATH (pwsh needs manual update, refreshenv is for Windows PowerShell)
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
           # Copy ffmpeg.exe
           $ffmpegPath = (Get-Command ffmpeg -ErrorAction Stop).Source
@@ -154,7 +154,7 @@ jobs:
           $tesseractPath = (Get-Command tesseract -ErrorAction Stop).Source
           Copy-Item $tesseractPath "src-tauri\binaries\tesseract-x86_64-pc-windows-msvc.exe"
 
-          # Copy tessdata (chocolatey installs to C:\Program Files\Tesseract-OCR\)
+          # Copy tessdata
           mkdir -Force src-tauri\binaries\tessdata
           $tessDir = Split-Path $tesseractPath -Parent
           if (Test-Path "$tessDir\tessdata\eng.traineddata") {
