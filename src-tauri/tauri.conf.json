@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/nicehash/tauri/main/core/tauri-config-schema/schema.json",
   "productName": "Snapzy",
   "version": "0.1.0",
-  "identifier": "com.snapzy.app",
+  "identifier": "com.snapzy.desktop",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
