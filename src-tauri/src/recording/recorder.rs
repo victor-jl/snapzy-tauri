@@ -227,6 +227,11 @@ fn build_macos_command(cmd: &mut Command, options: &RecordingOptions) {
     if options.area.is_some() {
         cmd.args(["-filter:v", &format!("crop={w}:{h}:{x}:{y}")]);
     }
+
+    // Handle audio: system audio requires BlackHole/Soundflower on macOS.
+    if options.include_audio && !options.include_mic {
+        cmd.args(["-i", &format!("{display_index}:BlackHole 2ch")]);
+    }
 }
 
 /// Determine the avfoundation display index based on the capture area.
