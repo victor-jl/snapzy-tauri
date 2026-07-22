@@ -143,7 +143,7 @@ jobs:
           # Install FFmpeg and Tesseract via chocolatey
           choco install ffmpeg tesseract --yes --no-progress
 
-          # Refresh PATH (pwsh needs manual update, refreshenv is for Windows PowerShell)
+          # Refresh PATH
           $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
           # Copy ffmpeg.exe
@@ -154,14 +154,31 @@ jobs:
           $tesseractPath = (Get-Command tesseract -ErrorAction Stop).Source
           Copy-Item $tesseractPath "src-tauri\binaries\tesseract-x86_64-pc-windows-msvc.exe"
 
-          # Copy tessdata
+          # Copy tessdata - try multiple locations
           mkdir -Force src-tauri\binaries\tessdata
-          $tessDir = Split-Path $tesseractPath -Parent
-          if (Test-Path "$tessDir\tessdata\eng.traineddata") {
-            Copy-Item "$tessDir\tessdata\eng.traineddata" "src-tauri\binaries\tessdata\"
-          } elseif (Test-Path "C:\Program Files\Tesseract-OCR\tessdata\eng.traineddata") {
-            Copy-Item "C:\Program Files\Tesseract-OCR\tessdata\eng.traineddata" "src-tauri\binaries\tessdata\"
+          $tessFound = $false
+          $tessSearchPaths = @(
+            (Join-Path (Split-Path $tesseractPath -Parent) "tessdata"),
+            "C:\Program Files\Tesseract-OCR\tessdata",
+            "C:\ProgramData\chocolatey\lib\tesseract\tools\tessdata",
+            "C:\ProgramData\chocolatey\lib\tesseract\tools\share\tessdata"
+          )
+          foreach ($p in $tessSearchPaths) {
+            if (Test-Path (Join-Path $p "eng.traineddata")) {
+              Write-Host "Found tessdata at: $p"
+              Copy-Item "$p\eng.traineddata" "src-tauri\binaries\tessdata\"
+              $tessFound = $true
+              break
+            }
           }
+          if (-not $tessFound) {
+            Write-Host "Downloading eng.traineddata from GitHub..."
+            Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata" -OutFile "src-tauri\binaries\tessdata\eng.traineddata"
+          }
+
+          # Verify files
+          Write-Host "=== binaries directory contents ==="
+          Get-ChildItem src-tauri\binaries\ -Recurse | ForEach-Object { Write-Host $_.FullName }
 
       - name: Build Tauri (Windows x64)
         uses: tauri-apps/tauri-action@v0
