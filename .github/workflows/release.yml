@@ -193,10 +193,10 @@ jobs:
           args: --target x86_64-pc-windows-msvc
 
   # ============================================================
-  # Linux (x86_64)
+  # Windows (aarch64)
   # ============================================================
-  build-linux-x64:
-    runs-on: ubuntu-latest
+  build-windows-arm64:
+    runs-on: windows-11-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -210,42 +210,57 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-unknown-linux-gnu
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            libgtk-3-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev \
-            ffmpeg \
-            tesseract-ocr \
-            tesseract-ocr-eng
+          targets: aarch64-pc-windows-msvc
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install sidecar binaries (Linux x64)
+      - name: Install sidecar binaries (Windows ARM64)
+        shell: pwsh
         run: |
-          # Copy system FFmpeg
-          cp "$(which ffmpeg)" src-tauri/binaries/ffmpeg-x86_64-unknown-linux-gnu
-          chmod +x src-tauri/binaries/ffmpeg-x86_64-unknown-linux-gnu
+          mkdir -Force src-tauri\binaries
 
-          # Copy system Tesseract
-          cp "$(which tesseract)" src-tauri/binaries/tesseract-x86_64-unknown-linux-gnu
-          chmod +x src-tauri/binaries/tesseract-x86_64-unknown-linux-gnu
+          # Install FFmpeg and Tesseract via chocolatey (native ARM64)
+          choco install ffmpeg tesseract --yes --no-progress
 
-          # Copy tessdata
-          mkdir -p src-tauri/binaries/tessdata
-          cp /usr/share/tesseract-ocr/*/tessdata/eng.traineddata src-tauri/binaries/tessdata/ 2>/dev/null || \
-          cp /usr/share/tesseract-ocr/tessdata/eng.traineddata src-tauri/binaries/tessdata/ 2>/dev/null || true
+          # Refresh PATH
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-      - name: Build Tauri (Linux x64)
+          # Copy ffmpeg.exe
+          $ffmpegPath = (Get-Command ffmpeg -ErrorAction Stop).Source
+          Copy-Item $ffmpegPath "src-tauri\binaries\ffmpeg-aarch64-pc-windows-msvc.exe"
+
+          # Copy tesseract.exe
+          $tesseractPath = (Get-Command tesseract -ErrorAction Stop).Source
+          Copy-Item $tesseractPath "src-tauri\binaries\tesseract-aarch64-pc-windows-msvc.exe"
+
+          # Copy tessdata - try multiple locations
+          mkdir -Force src-tauri\binaries\tessdata
+          $tessFound = $false
+          $tessSearchPaths = @(
+            (Join-Path (Split-Path $tesseractPath -Parent) "tessdata"),
+            "C:\Program Files\Tesseract-OCR\tessdata",
+            "C:\ProgramData\chocolatey\lib\tesseract\tools\tessdata",
+            "C:\ProgramData\chocolatey\lib\tesseract\tools\share\tessdata"
+          )
+          foreach ($p in $tessSearchPaths) {
+            if (Test-Path (Join-Path $p "eng.traineddata")) {
+              Write-Host "Found tessdata at: $p"
+              Copy-Item "$p\eng.traineddata" "src-tauri\binaries\tessdata\"
+              $tessFound = $true
+              break
+            }
+          }
+          if (-not $tessFound) {
+            Write-Host "Downloading eng.traineddata from GitHub..."
+            Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata" -OutFile "src-tauri\binaries\tessdata\eng.traineddata"
+          }
+
+          # Verify files
+          Write-Host "=== binaries directory contents ==="
+          Get-ChildItem src-tauri\binaries\ -Recurse | ForEach-Object { Write-Host $_.FullName }
+
+      - name: Build Tauri (Windows ARM64)
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -255,4 +270,4 @@ jobs:
           releaseBody: 'See the assets to download this version.'
           releaseDraft: true
           prerelease: false
-          args: --target x86_64-unknown-linux-gnu
+          args: --target aarch64-pc-windows-msvc
